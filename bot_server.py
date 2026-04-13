@@ -92,15 +92,15 @@ def load_config() -> Config:
         "",
     ).strip ()
 
-        service_account_file_value = get_setting(
-            env_file_values,
-            "google_service_account_file", 
-            "GOOGLE_SERVICE_ACCOUNT_FILE", 
-            "etc/secrets/google-service-account.json",
-        ).strip()
+    service_account_file_value = get_setting(
+        env_file_values,
+        "google_service_account_file", 
+        "GOOGLE_SERVICE_ACCOUNT_FILE", 
+        "etc/secrets/google-service-account.json",
+    ).strip()
 
-        service_account_file = Path(service_account_file_value) if
-      service_account_file_value else None
+    service_account_file = Path(service_account_file_value) if
+    service_account_file_value else None
 
     config = Config(
         sheet_id=get_setting(env_file_values, "sheet_id", "SHEET_ID"),
@@ -148,7 +148,7 @@ def load_config() -> Config:
         
     if not config.service_account_json:
         if not config.service_account_file or not
-    config.service_account_file.exists():
+        config.service_account_file.exists():
         raise FileNotFoundError(
             "No Google service account credentials found."
             f"Checked GOOGLE_SERVICE_ACCOUNT_JSON and file:
