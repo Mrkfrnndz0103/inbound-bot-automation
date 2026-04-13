@@ -84,19 +84,19 @@ def ensure_binary(binary_name: str) -> None:
 
 def load_config() -> Config:
     env_file_values = load_env_file(Path(".env"))
-    
+
     service_account_json = get_setting(
         env_file_values,
         "google_service_account_json",
         "GOOGLE_SERVICE_ACCOUNT_JSON",
         "",
-    ).strip ()
+    ).strip()
 
     service_account_file_value = get_setting(
         env_file_values,
-        "google_service_account_file", 
-        "GOOGLE_SERVICE_ACCOUNT_FILE", 
-        "etc/secrets/google-service-account.json",
+        "google_service_account_file",
+        "GOOGLE_SERVICE_ACCOUNT_FILE",
+        "/etc/secrets/google-service-account.json",
     ).strip()
 
     service_account_file = Path(service_account_file_value) if service_account_file_value else None
@@ -109,7 +109,7 @@ def load_config() -> Config:
         report_link=get_setting(env_file_values, "report_link", "REPORT_LINK"),
         timezone_name=get_setting(env_file_values, "timezone", "BOT_TIMEZONE", "Asia/Manila"),
         service_account_file=service_account_file,
-        service_account_json=service_account_json, 
+        service_account_json=service_account_json,
         host=get_setting(env_file_values, "host", "BOT_HOST", "0.0.0.0"),
         port=int(os.getenv("PORT") or get_setting(env_file_values, "port", "BOT_PORT", "8080")),
         interval_minutes=int(get_setting(env_file_values, "interval_minutes", "BOT_INTERVAL_MINUTES", "10")),
@@ -144,15 +144,13 @@ def load_config() -> Config:
         raise ValueError("BOT_IMAGE_BORDER_PX must be zero or greater.")
     if config.image_resize_width <= 0:
         raise ValueError("BOT_IMAGE_RESIZE_WIDTH must be greater than 0.")
-        
+
     if not config.service_account_json:
-        if not config.service_account_file or not
-        config.service_account_file.exists():
-        raise FileNotFoundError(
-            "No Google service account credentials found."
-            f"Checked GOOGLE_SERVICE_ACCOUNT_JSON and file:
-        {config.service_account_file}"
-        )
+        if not config.service_account_file or not config.service_account_file.exists():
+            raise FileNotFoundError(
+                "No Google service account credentials found. "
+                f"Checked GOOGLE_SERVICE_ACCOUNT_JSON and file: {config.service_account_file}"
+            )
 
     return config
 
