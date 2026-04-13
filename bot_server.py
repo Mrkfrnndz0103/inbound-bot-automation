@@ -99,7 +99,7 @@ def load_config() -> Config:
         "etc/secrets/google-service-account.json",
     ).strip()
 
-        service_account_file = Path(service_account_file_value) if service_account_file_value else None
+    service_account_file = Path(service_account_file_value) if service_account_file_value else None
 
     config = Config(
         sheet_id=get_setting(env_file_values, "sheet_id", "SHEET_ID"),
