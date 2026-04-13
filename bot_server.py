@@ -29,6 +29,7 @@ SCOPES = [
 ]
 MAX_SEATALK_IMAGE_BYTES = 5 * 1024 * 1024
 ENV_LINE_PATTERN = re.compile(r"^\s*([A-Za-z0-9_]+)\s*[:=]\s*(.*?)\s*$")
+
 @dataclass(frozen=True)
 class Config:
     sheet_id: str
@@ -38,6 +39,7 @@ class Config:
     report_link: str
     timezone_name: str
     service_account_file: Path | None
+    service_account_json: str
     host: str
     port: int
     interval_minutes: int
@@ -47,7 +49,6 @@ class Config:
     image_border_px: int
     image_resize_width: int
     use_env_proxy: bool
-
 
 def load_env_file(path: Path) -> dict[str, str]:
     values: dict[str, str] = {}
@@ -85,13 +86,6 @@ def ensure_binary(binary_name: str) -> None:
 def load_config() -> Config:
     env_file_values = load_env_file(Path(".env"))
 
-    service_account_json = get_setting(
-        env_file_values,
-        "google_service_account_json",
-        "GOOGLE_SERVICE_ACCOUNT_JSON",
-        "",
-    ).strip()
-
     service_account_file_value = get_setting(
         env_file_values,
         "google_service_account_file",
@@ -105,7 +99,7 @@ def load_config() -> Config:
         sheet_id=get_setting(env_file_values, "sheet_id", "SHEET_ID"),
         tab_name=get_setting(env_file_values, "tab_name", "TAB_NAME"),
         capture_range=get_setting(env_file_values, "capture_range", "CAPTURE_RANGE", "B2:M30"),
-        seatalk_webhook_url=get_setting(env_file_values, "seatalk_webhook_url", "SEATALK_WEBHOOK_URL"),
+        seatalk_webhook_url=get_setting(env_file_values, "seatalk_webhook_url", "SEATLK_WEBHOOK_URL"),
         report_link=get_setting(env_file_values, "report_link", "REPORT_LINK"),
         timezone_name=get_setting(env_file_values, "timezone", "BOT_TIMEZONE", "Asia/Manila"),
         service_account_file=service_account_file,
