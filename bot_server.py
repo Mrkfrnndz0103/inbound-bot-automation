@@ -239,7 +239,7 @@ def build_interactive_message_payload(
                 {
                     "element_type": "title",
                     "title": {
-                        "text": f"Update as of {timestamp}",
+                        "text": f"SOC 5 OTP Hourly Update as of {timestamp}",
                     },
                 },
                 {
