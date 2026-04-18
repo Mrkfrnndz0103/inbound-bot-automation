@@ -1,9 +1,10 @@
 services:
-  otp-controltower:
+  seatalk-otp-controltower:
     build: .
-    container_name: otp-controltower
+    container_name: seatalk-otp-controltower
     restart: unless-stopped
     ports:
       - "8081:8080"
     volumes:
       - ./.env:/app/.env:ro
+      - ./google-service-account.json:/app/google-service-account.json:ro

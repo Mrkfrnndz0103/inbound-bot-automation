@@ -1,14 +1,22 @@
+# App-local env and secrets
 .env
 .env.*
 !.env.example
+otp_hourly/.env
+otp_controltower/.env
 google-service-account.json
+otp_hourly/google-service-account.json
+otp_controltower/google-service-account.json
 *.pem
 *.key
 *.crt
 
+# Python caches and runtime output
 __pycache__/
 *.py[cod]
 .runtime/
+otp_hourly/.runtime/
+otp_controltower/.runtime/
 .docker-data/
 .docker-exec/
 

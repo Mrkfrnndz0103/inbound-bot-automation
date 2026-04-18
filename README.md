@@ -4,8 +4,8 @@ This repository is now split into fully separated app folders.
 
 ## Apps
 
-- [otp_hourly](otp_hourly/README.md): the existing working SeaTalk bot that renders the OTP hourly sheet snapshot and sends it after an Apps Script-triggered change in `AD1`.
-- [otp_controltower](otp_controltower/README.md): a separate placeholder app for the next alert flow.
+- [otp_hourly](otp_hourly/README.md): the OTP hourly SeaTalk bot.
+- [otp_controltower](otp_controltower/README.md): a fully separated control tower SeaTalk bot with the same runtime behavior as `otp_hourly`.
 
 ## Structure
 
