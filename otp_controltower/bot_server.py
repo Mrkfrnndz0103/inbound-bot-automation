@@ -149,7 +149,7 @@ def load_config() -> Config:
     config = Config(
         sheet_id=get_setting(env_file_values, "sheet_id", "SHEET_ID"),
         tab_name=get_setting(env_file_values, "tab_name", "TAB_NAME"),
-        capture_range=get_setting(env_file_values, "capture_range", "CAPTURE_RANGE", "B2:M30"),
+        capture_range=get_setting(env_file_values, "capture_range", "CAPTURE_RANGE", "G1:T39"),
         seatalk_webhook_url=get_setting(env_file_values, "seatalk_webhook_url", "SEATALK_WEBHOOK_URL"),
         report_link=get_setting(env_file_values, "report_link", "REPORT_LINK"),
         timezone_name=get_setting(env_file_values, "timezone", "BOT_TIMEZONE", "Asia/Manila"),
@@ -162,7 +162,7 @@ def load_config() -> Config:
             "",
         ).strip(),
         host=get_setting(env_file_values, "host", "BOT_HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT") or get_setting(env_file_values, "port", "BOT_PORT", "8080")),
+        port=int(os.getenv("PORT") or get_setting(env_file_values, "port", "BOT_PORT", "8081")),
         request_timeout_seconds=int(
             get_setting(env_file_values, "request_timeout_seconds", "BOT_REQUEST_TIMEOUT_SECONDS", "30")
         ),

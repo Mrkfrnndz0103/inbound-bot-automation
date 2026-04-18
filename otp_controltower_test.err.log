@@ -1,0 +1,9 @@
+=18083 : The term '=18083' is not recognized as the name of a cmdlet, function, script file, or operable program. 
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ ='18083'; python bot_server.py
++ ~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (=18083:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+2026-04-18 14:04:14,543 INFO seatalk-bot - Seatalk bot server listening on 0.0.0.0:8081
