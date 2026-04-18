@@ -12,7 +12,8 @@ function watchSeatalkTriggerCell() {
     throw new Error(`Sheet not found: ${CONFIG.sheetName}`);
   }
 
-  const currentValue = normalizeCellValue(sheet.getRange(CONFIG.triggerCellA1).getValue());
+  const range = sheet.getRange(CONFIG.triggerCellA1);
+  const currentValue = formatTriggerCellValue(range);
   const properties = PropertiesService.getScriptProperties();
   const propertyKey = buildPropertyKey();
   const previousValue = properties.getProperty(propertyKey);
@@ -80,7 +81,7 @@ function resetSeatalkBaseline() {
     throw new Error(`Sheet not found: ${CONFIG.sheetName}`);
   }
 
-  const currentValue = normalizeCellValue(sheet.getRange(CONFIG.triggerCellA1).getValue());
+  const currentValue = formatTriggerCellValue(sheet.getRange(CONFIG.triggerCellA1));
   PropertiesService.getScriptProperties().setProperty(buildPropertyKey(), currentValue);
   Logger.log(`Baseline reset for ${CONFIG.sheetName}!${CONFIG.triggerCellA1}: ${currentValue}`);
 }
@@ -89,17 +90,27 @@ function buildPropertyKey() {
   return `seatalk_bot:${CONFIG.spreadsheetId}:${CONFIG.sheetName}:${CONFIG.triggerCellA1}`;
 }
 
-function normalizeCellValue(value) {
+function formatTriggerCellValue(range) {
+  const value = range.getValue();
+  const displayValue = String(range.getDisplayValue() || '').trim();
+
   if (value === null || value === '') {
     return '';
   }
 
   if (Object.prototype.toString.call(value) === '[object Date]') {
-    return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ssXXX");
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'h:mma MMM-dd');
   }
 
   if (typeof value === 'number' || typeof value === 'boolean') {
+    if (displayValue) {
+      return displayValue;
+    }
     return String(value);
+  }
+
+  if (displayValue) {
+    return displayValue;
   }
 
   return String(value).trim();

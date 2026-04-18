@@ -85,7 +85,7 @@ Example trigger payload:
   "source": "google_apps_script",
   "trigger_cell": "AD1",
   "previous_value": "0",
-  "current_value": "1",
+  "current_value": "9:35AM Apr-18",
   "spreadsheet_id": "your-sheet-id",
   "tab_name": "bot_server",
   "fired_at": "2026-04-18T09:00:00.000Z",
@@ -100,7 +100,7 @@ Each trigger sends one interactive message card:
 ```text
 [Interactive Message]
 Title: Update as of h:mm AM/PM Mmm-dd
-Description: -
+Description: FMS Latest Update: 9:35AM Apr-18
 Image: rendered report snapshot
 Button: View Report Link
 ```

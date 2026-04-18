@@ -217,7 +217,21 @@ def filter_trigger_metadata(payload: dict[str, Any]) -> dict[str, Any]:
     return metadata
 
 
-def build_interactive_message_payload(timestamp: str, report_link: str, image_bytes: bytes) -> dict[str, Any]:
+def build_card_description(trigger_metadata: dict[str, Any] | None) -> str:
+    current_value = ""
+    if trigger_metadata:
+        current_value = str(trigger_metadata.get("current_value") or "").strip()
+    if not current_value:
+        current_value = "-"
+    return f"FMS Latest Update: {current_value}"
+
+
+def build_interactive_message_payload(
+    timestamp: str,
+    description: str,
+    report_link: str,
+    image_bytes: bytes,
+) -> dict[str, Any]:
     return {
         "tag": "interactive_message",
         "interactive_message": {
@@ -231,7 +245,7 @@ def build_interactive_message_payload(timestamp: str, report_link: str, image_by
                 {
                     "element_type": "description",
                     "description": {
-                        "text": "-",
+                        "text": description,
                     },
                 },
                 {
@@ -319,7 +333,7 @@ class SeatalkBotService:
 
         try:
             image_bytes = self.render_report_image()
-            payload = self.build_message_payload(started_at, image_bytes)
+            payload = self.build_message_payload(started_at, image_bytes, trigger_metadata=trigger_metadata)
             self.post_to_seatalk(payload)
             self.last_error = None
             self.last_run_succeeded_at = datetime.now(self.timezone)
@@ -455,9 +469,15 @@ class SeatalkBotService:
             details = stderr or stdout or "no subprocess output"
             raise RuntimeError(f"{error_message}: {details}") from exc
 
-    def build_message_payload(self, now: datetime, image_bytes: bytes) -> dict[str, Any]:
+    def build_message_payload(
+        self,
+        now: datetime,
+        image_bytes: bytes,
+        trigger_metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         timestamp = format_update_timestamp(now)
-        return build_interactive_message_payload(timestamp, self.config.report_link, image_bytes)
+        description = build_card_description(trigger_metadata)
+        return build_interactive_message_payload(timestamp, description, self.config.report_link, image_bytes)
 
     def post_to_seatalk(self, payload: dict[str, Any]) -> dict[str, Any]:
         request_body = json.dumps(payload).encode("utf-8")
