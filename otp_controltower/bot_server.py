@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
@@ -28,6 +29,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly",
 ]
 MAX_SEATALK_IMAGE_BYTES = 5 * 1024 * 1024
+WATCH_TRIGGER_CAPTURE_DELAY_SECONDS = 7
 ENV_LINE_PATTERN = re.compile(r"^\s*([A-Za-z0-9_]+)\s*[:=]\s*(.*?)\s*$")
 REQUIRED_CONFIG_FIELDS = (
     "sheet_id",
@@ -332,6 +334,7 @@ class SeatalkBotService:
         )
 
         try:
+            self.wait_for_capture_settle(trigger)
             image_bytes = self.render_report_image()
             payload = self.build_message_payload(started_at, image_bytes, trigger_metadata=trigger_metadata)
             self.post_to_seatalk(payload)
@@ -346,6 +349,17 @@ class SeatalkBotService:
         finally:
             self.last_run_finished_at = datetime.now(self.timezone)
             self.run_lock.release()
+
+    def wait_for_capture_settle(self, trigger: str) -> None:
+        if trigger != "apps_script_cell_change":
+            return
+
+        LOGGER.info(
+            "Watched range change detected. Waiting %s seconds before capturing %s.",
+            WATCH_TRIGGER_CAPTURE_DELAY_SECONDS,
+            self.config.capture_range,
+        )
+        time.sleep(WATCH_TRIGGER_CAPTURE_DELAY_SECONDS)
 
     def render_report_image(self) -> bytes:
         runtime_root = Path(".runtime")
