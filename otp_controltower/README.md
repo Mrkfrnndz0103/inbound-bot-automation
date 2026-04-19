@@ -1,14 +1,14 @@
 # OTP Controltower
 
-Fully separated SeaTalk bot for the control tower flow. Functionally, this app is the same as `otp_hourly`: Google Apps Script watches a trigger cell in your sheet, calls this service when the value changes, and the service renders the configured report range as an image and sends one interactive message card to the SeaTalk group webhook.
+Fully separated SeaTalk bot for the control tower flow. Google Apps Script watches a trigger cell in your sheet, calls this service when the value changes, and also sends scheduled updates at `12PM`, `3PM`, `6PM`, `8PM`, `10PM`, `1AM`, `3AM`, and `6AM`. The service renders the configured report range as an image and sends one interactive message card to the SeaTalk group webhook.
 
 ## Flow
 
 1. Google Apps Script runs on a time-driven trigger.
 2. The script reads the configured trigger cell and compares it with the last stored value.
-3. If the trigger cell did not change, nothing happens.
-4. If the trigger cell changed, Apps Script sends `POST /trigger` to this bot.
-5. The bot waits 7 seconds for the watched range update to settle.
+3. If the trigger cell changed, Apps Script sends `POST /trigger` to this bot.
+4. If the trigger cell did not change, Apps Script still sends on the fixed schedule: `12PM`, `3PM`, `6PM`, `8PM`, `10PM`, `1AM`, `3AM`, `6AM`.
+5. The bot waits 7 seconds for watched-cell changes to settle.
 6. The bot exports the configured Google Sheets range as PDF.
 7. The bot converts the PDF to PNG with Poppler.
 8. The bot trims and optimizes the PNG with ImageMagick.
@@ -17,7 +17,7 @@ Fully separated SeaTalk bot for the control tower flow. Functionally, this app i
 ## Main Parts
 
 - [bot_server.py](bot_server.py): receives trigger requests, renders the report image, and sends the SeaTalk webhook.
-- [docs/google_apps_script_polling.gs](docs/google_apps_script_polling.gs): Apps Script that polls the configured trigger cell and calls the bot when the value changes.
+- [docs/google_apps_script_polling.gs](docs/google_apps_script_polling.gs): Apps Script that polls the configured trigger cell, sends on change, and sends on the fixed schedule.
 - [docs/render_web_service_deployment.md](docs/render_web_service_deployment.md): deployment steps for the bot service.
 
 ## Config
@@ -63,11 +63,12 @@ Use the script in [docs/google_apps_script_polling.gs](docs/google_apps_script_p
    - `triggerCellA1`
    - `botTriggerUrl`
    - `sharedSecret`
+   - `scheduleTimezone` if you do not want `Asia/Manila`
 5. Run `installMinuteTrigger()` once from Apps Script.
 6. Authorize the script when prompted.
 7. Run `watchSeatalkTriggerCell()` once to store the initial baseline value without sending an alert.
 
-After that, Apps Script will check the configured trigger cell every minute and only call the bot after the value changes.
+After that, Apps Script will check the configured trigger cell every minute, send immediately after the value changes, and also send scheduled updates at `12PM`, `3PM`, `6PM`, `8PM`, `10PM`, `1AM`, `3AM`, and `6AM`.
 
 ## Trigger Contract
 
@@ -78,13 +79,14 @@ The bot accepts:
 
 Example trigger payload:
 
+The Apps Script can send either a cell-change payload or a scheduled-send payload. Example scheduled-send payload:
+
 ```json
 {
-  "trigger": "apps_script_cell_change",
-  "source": "google_apps_script",
-  "trigger_cell": "AD1",
-  "previous_value": "0",
-  "current_value": "9:35AM Apr-18",
+  "trigger": "apps_script_schedule_send",
+  "source": "google_apps_script_schedule",
+  "scheduled_time": "12:00PM",
+  "schedule_timezone": "Asia/Manila",
   "spreadsheet_id": "your-sheet-id",
   "tab_name": "controltower",
   "fired_at": "2026-04-18T09:00:00.000Z",
@@ -130,7 +132,7 @@ docker rm -f seatalk-otp-controltower
 
 ## Notes
 
-- This app is fully separated from `otp_hourly` even though the function is the same.
+- This app is fully separated from `otp_hourly`.
 - The bot does not poll Google Sheets for cell changes. Apps Script does that job.
 - Google Apps Script installable time-driven triggers can run as often as every minute, so this design is not suitable for sub-minute alerting.
 - The container image requires both `poppler-utils` and `imagemagick`.
