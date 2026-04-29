@@ -164,7 +164,7 @@ def load_config() -> Config:
             "",
         ).strip(),
         host=get_setting(env_file_values, "host", "BOT_HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT") or get_setting(env_file_values, "port", "BOT_PORT", "8081")),
+        port=int(os.getenv("PORT") or get_setting(env_file_values, "port", "BOT_PORT", "8080")),
         request_timeout_seconds=int(
             get_setting(env_file_values, "request_timeout_seconds", "BOT_REQUEST_TIMEOUT_SECONDS", "30")
         ),
@@ -538,14 +538,17 @@ class SeatalkBotService:
 
 def build_handler(service: SeatalkBotService) -> type[BaseHTTPRequestHandler]:
     class BotHandler(BaseHTTPRequestHandler):
+        def is_health_path(self) -> bool:
+            return parse.urlparse(self.path).path in {"/", "/healthz"}
+
         def do_GET(self) -> None:  # noqa: N802
-            if self.path not in {"/", "/healthz"}:
+            if not self.is_health_path():
                 self.respond_json(HTTPStatus.NOT_FOUND, {"error": "Not found"})
                 return
             self.respond_json(HTTPStatus.OK, service.status())
 
         def do_HEAD(self) -> None:  # noqa: N802
-            if self.path not in {"/", "/healthz"}:
+            if not self.is_health_path():
                 self.respond_empty(HTTPStatus.NOT_FOUND)
                 return
             self.respond_empty(HTTPStatus.OK)

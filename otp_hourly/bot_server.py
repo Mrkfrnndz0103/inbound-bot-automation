@@ -538,14 +538,17 @@ class SeatalkBotService:
 
 def build_handler(service: SeatalkBotService) -> type[BaseHTTPRequestHandler]:
     class BotHandler(BaseHTTPRequestHandler):
+        def is_health_path(self) -> bool:
+            return parse.urlparse(self.path).path in {"/", "/healthz"}
+
         def do_GET(self) -> None:  # noqa: N802
-            if self.path not in {"/", "/healthz"}:
+            if not self.is_health_path():
                 self.respond_json(HTTPStatus.NOT_FOUND, {"error": "Not found"})
                 return
             self.respond_json(HTTPStatus.OK, service.status())
 
         def do_HEAD(self) -> None:  # noqa: N802
-            if self.path not in {"/", "/healthz"}:
+            if not self.is_health_path():
                 self.respond_empty(HTTPStatus.NOT_FOUND)
                 return
             self.respond_empty(HTTPStatus.OK)
